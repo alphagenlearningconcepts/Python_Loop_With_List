@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Lists with Loops: Interactive Exploration - Alphagen Learning</title>
+
+  <!-- Google Fonts: Poppins & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600;700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome & Canvas Confetti CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          },
+          colors: {
+            alphagen: {
+              purple: '#5E48C4',      // Primary Brand Purple
+              purpleDark: '#4A3AAD',  // Dark Purple hover
+              purpleMid: '#7B6ED4',   // Decorative fills & borders
+              purplePale: '#EAE7FE',  // Light note & highlight boxes
+              purpleGhost: '#F5F4FF', // Page & card ghost background
+              yellow: '#FFD071',      // Spark Yellow accent
+              yellowDark: '#E6B84A',  // Yellow text on light surfaces
+              yellowPale: '#FFF3CC',  // Soft highlight background
+              nearBlack: '#1A1A1A',   // Primary text
+              darkGrey: '#404048',    // Secondary text
+              midGrey: '#888896',     // Captions & labels
+              lightGrey: '#F2F2F4',   // Neutral card background
+              cyan: '#59E4FB',        // Tech accent light
+              cyanDark: '#055F6E',    // Tech accent dark
+              cyanPale: '#E0FAFE',    // Tech pale background
+              coral: '#ED5661',       // Warning / bug accent
+              coralDark: '#993040',   // Warning dark text
+              coralPale: '#FFF0F1'    // Warning pale background
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: #5E48C4;
+      font-family: 'Poppins', sans-serif;
+      color: #1A1A1A;
+      overflow-x: hidden;
+      user-select: none;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .stage-wrapper {
+      width: 100%;
+      max-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 1280x720 Presentation Stage Frame */
+    .slide-stage {
+      width: 1280px;
+      height: 720px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
+      background-color: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+      border: 1px solid #EAE7FE;
+      transform-origin: top center;
+    }
+
+    .slide-panel {
+      width: 1280px;
+      height: 720px;
+      padding: 34px 50px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+      background: #ffffff;
+    }
+
+    .slide-panel.active {
+      display: flex;
+      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Interactive Element Micro-interactions */
+    .btn-interactive {
+      cursor: pointer;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.2s ease;
+    }
+    .btn-interactive:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn-interactive:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+      width: 1280px;
+      margin: 14px auto 16px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      transform-origin: top center;
+    }
+
+    .nav-btn {
+      background: #4A3AAD;
+      color: #FFD071;
+      border: 2px solid #7B6ED4;
+      padding: 12px 28px;
+      border-radius: 16px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: #FFD071;
+      color: #1A1A1A;
+      border-color: #FFD071;
+      transform: scale(1.04);
+    }
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .nav-btn.finish-btn {
+      background: #FFD071;
+      color: #1A1A1A;
+      border-color: #FFD071;
+      animation: pulseFinish 1.6s infinite alternate;
+    }
+
+    @keyframes pulseFinish {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 208, 113, 0.6); }
+      100% { transform: scale(1.05); box-shadow: 0 0 18px 4px rgba(255, 208, 113, 0.5); }
+    }
+
+    .dot-indicator {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .dot-indicator.active {
+      background: #FFD071;
+      width: 24px;
+      border-radius: 10px;
+    }
+
+    .spark-wavy-underline {
+      position: relative;
+      display: inline-block;
+      color: #5E48C4;
+    }
+    .spark-wavy-underline::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 10px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 4' preserveAspectRatio='none'%3E%3Cpath d='M0 2 Q 5 0, 10 2 T 20 2' fill='none' stroke='%23FFD071' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: repeat-x;
+      background-size: 18px 10px;
+    }
+
+    /* Quiz Option Chips */
+    .quiz-chip {
+      background: #ffffff;
+      border: 2px solid #EAE7FE;
+      border-radius: 16px;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1A1A1A;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+    .quiz-chip:hover {
+      border-color: #5E48C4;
+      background: #F5F4FF;
+      transform: translateX(3px);
+    }
+    .quiz-chip.selected-correct {
+      background: #f0fdf4 !important;
+      border-color: #22c55e !important;
+      color: #14532d !important;
+    }
+    .quiz-chip.selected-wrong {
+      background: #FFF0F1 !important;
+      border-color: #ED5661 !important;
+      color: #993040 !important;
+    }
+
+    /* Checkbox Cards */
+    .checkbox-card {
+      background: #ffffff;
+      border: 2px solid #EAE7FE;
+      border-radius: 18px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .checkbox-card:hover {
+      border-color: #5E48C4;
+      background: #F5F4FF;
+    }
+    .checkbox-card.checked {
+      background: #f0fdf4;
+      border-color: #22c55e;
+    }
+    .checkbox-box {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #5E48C4;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
+    .checkbox-card.checked .checkbox-box {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .game-grid-bg {
+      background-color: #0b1329;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+
+<body class="bg-alphagen-purple">
+<div class="stage-wrapper">
+
+  <!-- Top Alphagen Branding Header Bar -->
+  <header class="w-full bg-alphagen-purpleDark px-4 py-3.5 flex flex-wrap items-center justify-between gap-3 text-white shadow-md rounded-2xl mb-4 border border-alphagen-purpleMid">
+    <div class="flex items-center gap-3">
+      <a href="#" class="bg-alphagen-yellow hover:bg-alphagen-yellowDark text-alphagen-nearBlack px-4 py-2 rounded-xl font-extrabold text-xs md:text-sm shadow-sm transition-all flex items-center gap-2">
+        <span class="tracking-wide">ALPHAGEN LEARNING</span>
+      </a>
+      <span class="font-extrabold text-base md:text-xl tracking-tight text-white">Python List: Interactive Exploration</span>
+    </div>
+
+    <!-- Right Controls matching reference -->
+    <div class="flex items-center gap-3">
+      <button onclick="toggleAudio()" id="top-audio-btn" class="bg-alphagen-purple hover:bg-alphagen-purpleMid text-white p-2 rounded-lg transition-all" title="Toggle Sound">
+        <i class="fa-solid fa-volume-high text-base" id="sound-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 1280x720 Fixed Presentation Stage Frame -->
+  <div class="slide-stage">
+
+    <!-- Header Navigation inside stage -->
+    <header class="w-full bg-white border-b border-alphagen-purplePale px-8 py-3 flex items-center justify-between z-50">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-alphagen-purple flex items-center justify-center text-white text-xl shadow-md shadow-alphagen-purple/20">
+          <i class="fa-solid fa-repeat"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base md:text-lg text-alphagen-nearBlack tracking-tight">Data Structures &amp; Loops</h1>
+          <p class="text-xs font-semibold text-alphagen-purple">Part 2: Python Lists with For Loops</p>
+        </div>
+      </div>
+
+      <!-- Header Dots Navigation -->
+      <div class="flex items-center gap-1.5" id="header-dots-container"></div>
+
+      <!-- Header Slide Controls -->
+      <div class="flex items-center gap-3">
+        <span id="slide-counter-pill" class="text-xs md:text-sm font-bold text-alphagen-purple bg-alphagen-purpleGhost px-4 py-1.5 rounded-full border border-alphagen-purplePale">
+          Slide 1 / 12
+        </span>
+
+        <select id="slide-dropdown" onchange="goToSlide(parseInt(this.value))" class="text-xs md:text-sm font-bold text-alphagen-nearBlack bg-alphagen-lightGrey hover:bg-slate-200 border border-slate-200 px-3 py-1.5 rounded-xl cursor-pointer focus:outline-none focus:border-alphagen-purple transition">
+          <option value="1">1. Welcome Screen</option>
+          <option value="2">2. Warm-up Quiz on Lists</option>
+          <option value="3">3. Analogy: Feelings Tracker</option>
+          <option value="4">4. 3 Steps to Add User Input</option>
+          <option value="5">5. Coding Challenge: Inputs</option>
+          <option value="6">6. The Big Question: Repeat</option>
+          <option value="7">7. Enter Elements via Loop</option>
+          <option value="8">8. Challenges: Friends &amp; Grocery</option>
+          <option value="9">9. Scramble Step Reorder</option>
+          <option value="10">10. Operations: Add Numbers</option>
+          <option value="11">11. Step-by-Step Loop Tracker</option>
+          <option value="12">12. Advanced Lab &amp; Completion</option>
+        </select>
+
+        <button onclick="toggleAudio()" id="audio-btn" class="w-9 h-9 rounded-xl bg-alphagen-purpleGhost hover:bg-alphagen-purplePale text-alphagen-purple border border-alphagen-purplePale flex items-center justify-center text-sm transition btn-interactive" title="Toggle Sound">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ================= SLIDE 1: WELCOME SLIDE (NO BYLINE) ================= -->
+    <div id="slide-1" class="slide-panel active justify-center items-center text-center">
+      <div class="max-w-3xl flex flex-col items-center">
+        <h1 class="text-6xl md:text-7xl font-extrabold text-alphagen-nearBlack mb-12 tracking-tight leading-tight">
+          Python: Using <span class="spark-wavy-underline">Lists with Loops</span>
+        </h1>
+
+        <button onclick="nextSlide(); playSound('pop');" class="bg-alphagen-yellow hover:bg-alphagen-yellowDark text-alphagen-nearBlack font-extrabold text-2xl px-14 py-6 rounded-2xl shadow-xl shadow-alphagen-yellow/30 btn-interactive flex items-center gap-4">
+          <span>Start Exploring</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 2: WARM-UP QUESTIONS ON LISTS (CONCISE ANSWERS) ================= -->
+    <div id="slide-2" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Part 1 Review</span>
+         
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Warm-up Questionss</h2>
+       
+      </div>
+
+      <div class="space-y-4 my-auto">
+        <!-- Question 1 -->
+        <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-4 rounded-2xl space-y-2.5">
+          <h3 class="font-extrabold text-base text-alphagen-nearBlack">1. What is a list in Python?</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="checkWarmup(this, true)" class="quiz-chip text-sm p-3.5">
+              <span>Stores multiple items under one variable</span>
+            </button>
+            <button onclick="checkWarmup(this, false)" class="quiz-chip text-sm p-3.5">
+              <span>A command that prints text</span>
+            </button>
+            <button onclick="checkWarmup(this, false)" class="quiz-chip text-sm p-3.5">
+              <span>A condition that decides True or False</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-4 rounded-2xl space-y-2.5">
+          <h3 class="font-extrabold text-base text-alphagen-nearBlack">2. If a list has 4 items, what will be the index of the 3rd position?</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="checkWarmup(this, false)" class="quiz-chip text-sm p-3.5">
+              <span>Index 3</span>
+            </button>
+            <button onclick="checkWarmup(this, true)" class="quiz-chip text-sm p-3.5">
+              <span>Index 2</span>
+            </button>
+            <button onclick="checkWarmup(this, false)" class="quiz-chip text-sm p-3.5">
+              <span>Index 4</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-4 rounded-2xl space-y-2.5">
+          <h3 class="font-extrabold text-base text-alphagen-nearBlack">3. If I have to add an element to the list, which function am I going to use?</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="checkWarmup(this, true)" class="quiz-chip text-sm p-3.5">
+              <span>append()</span>
+            </button>
+            <button onclick="checkWarmup(this, false)" class="quiz-chip text-sm p-3.5">
+              <span>add()</span>
+            </button>
+            <button onclick="checkWarmup(this, false)" class="quiz-chip text-sm p-3.5">
+              <span>push()</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+     
+    </div>
+
+    <!-- ================= SLIDE 3: REAL-LIFE ANALOGY (FEELINGS TRACKER) ================= -->
+    <div id="slide-3" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Real-Life Analogy</span>
+         
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Enter you Feelings</h2>
+       
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 items-stretch my-auto">
+        <!-- Left: Input Form Card -->
+        <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-6 rounded-3xl flex flex-col justify-between shadow-sm">
+          <div>
+            <span class="text-xs font-extrabold text-alphagen-purple uppercase tracking-wider mb-2 block">USER INPUT BOX</span>
+            <label class="block text-lg font-bold text-alphagen-nearBlack mb-3" for="feeling-input">
+              Write input: <span class="text-alphagen-purple">How are you feeling? (enter one feeling at a time)</span>
+            </label>
+            <div class="flex gap-3">
+              <input type="text" id="feeling-input" placeholder="e.g., Happy 😊, Excited 🚀, Curious 💡" class="flex-1 p-4 rounded-2xl border-2 border-alphagen-purplePale font-semibold text-base outline-none focus:border-alphagen-purple bg-white">
+              <button onclick="submitFeeling()" class="btn-interactive bg-alphagen-purple hover:bg-alphagen-purpleDark text-white px-6 py-4 rounded-2xl font-extrabold text-base shadow-md flex items-center gap-2">
+                <span>Submit</span>
+                <i class="fa-solid fa-arrow-turn-down"></i>
+              </button>
+            </div>
+            <p class="text-xs text-alphagen-midGrey mt-3 font-semibold">
+              Quick prompts: 
+              <button onclick="quickFeeling('Curious 💡')" class="underline hover:text-alphagen-purple mr-2">Curious </button>
+              <button onclick="quickFeeling('Energetic ⚡')" class="underline hover:text-alphagen-purple mr-2">Energetic </button>
+              <button onclick="quickFeeling('Focused 🎯')" class="underline hover:text-alphagen-purple">Focused </button>
+            </p>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-alphagen-purplePale mt-4 text-xs font-bold text-alphagen-purple flex items-center justify-between">
+            <span>Logged Entries: <strong id="feeling-count" class="text-alphagen-yellowDark text-sm">0 entries</strong></span>
+            <button onclick="clearFeelings()" class="text-alphagen-coralDark hover:underline text-xs font-extrabold">Reset Sheet</button>
+          </div>
+        </div>
+
+        <!-- Right: Feelings Sheet Display -->
+        <div class="bg-slate-900 border-2 border-slate-800 p-6 rounded-3xl text-white flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+              <span class="text-xs font-mono text-alphagen-yellow font-extrabold uppercase">📝 NOTEPAD SHEET</span>
+              <span class="text-xs font-mono text-cyan-300">python_list = []</span>
+            </div>
+
+            <div id="feelings-paper" class="min-h-[160px] bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-wrap gap-2.5 content-start">
+              <span class="text-slate-500 text-sm font-mono italic">No entries yet! Submit an answer on the left to add...</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-xs text-emerald-400 mt-3">
+            <span class="text-slate-400"># Live representation:</span><br>
+            <span id="feelings-code-repr">feelings = []</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Reflection Note specified in prompt -->
+      <div class="bg-alphagen-yellowPale border border-alphagen-yellowDark/50 p-4 rounded-2xl text-sm md:text-base text-alphagen-nearBlack font-bold text-center">
+        📌  Notice how this time, we are taking <strong>inputs from the user</strong> and adding the elements dynamically into the list!
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 4: 3 STEPS TO ADD USER INPUT INTO A LIST ================= -->
+    <div id="slide-4" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Step-by-Step Architecture</span>
+         
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">3 Steps to Add One Element into a List</h2>
+       
+      </div>
+
+      <div class="grid grid-cols-12 gap-8 items-stretch my-auto">
+        <!-- Left: 3 Interactive Steps (5 cols) -->
+        <div class="col-span-5 flex flex-col justify-between gap-3">
+          <div onclick="activateInputStep(1)" id="step-btn-1" class="btn-interactive bg-white border-2 border-alphagen-purple p-4 rounded-2xl cursor-pointer shadow-sm">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-alphagen-purple text-white flex items-center justify-center font-extrabold text-sm">1</span>
+              <div>
+                <h3 class="font-extrabold text-sm text-alphagen-nearBlack">Step 1: Create an Empty List</h3>
+                <p class="text-xs text-alphagen-darkGrey mt-0.5">Start with an empty container: <code class="font-mono text-purple-700 font-bold">items = []</code></p>
+              </div>
+            </div>
+          </div>
+
+          <div onclick="activateInputStep(2)" id="step-btn-2" class="btn-interactive bg-white border-2 border-alphagen-purplePale p-4 rounded-2xl cursor-pointer shadow-sm">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-extrabold text-sm">2</span>
+              <div>
+                <h3 class="font-extrabold text-sm text-alphagen-nearBlack">Step 2: Take Input from User</h3>
+                <p class="text-xs text-alphagen-darkGrey mt-0.5">Prompt student: <code class="font-mono text-purple-700 font-bold">val = input("Enter item: ")</code></p>
+              </div>
+            </div>
+          </div>
+
+          <div onclick="activateInputStep(3)" id="step-btn-3" class="btn-interactive bg-white border-2 border-alphagen-purplePale p-4 rounded-2xl cursor-pointer shadow-sm">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-extrabold text-sm">3</span>
+              <div>
+                <h3 class="font-extrabold text-sm text-alphagen-nearBlack">Step 3: Use append()</h3>
+                <p class="text-xs text-alphagen-darkGrey mt-0.5">Push user input inside list: <code class="font-mono text-purple-700 font-bold">items.append(val)</code></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Run Code Button -->
+          <button onclick="runSingleInputSim()" id="run-sim-btn" class="btn-interactive bg-alphagen-yellow hover:bg-alphagen-yellowDark text-alphagen-nearBlack font-extrabold py-3.5 px-6 rounded-2xl text-base shadow-md flex items-center justify-center gap-2">
+            <i class="fa-solid fa-play"></i>
+            <span>Run Simulator</span>
+          </button>
+        </div>
+
+        <!-- Right: Live Simulator Display (7 cols) -->
+        <div class="col-span-7 bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 text-white flex flex-col justify-between shadow-lg font-mono">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+              <span class="text-xs text-alphagen-yellow font-bold uppercase">LIVE PYTHON SIMULATOR</span>
+              <span id="step-badge" class="text-xs bg-alphagen-purple px-3 py-0.5 rounded-full font-bold">Step 1 Active</span>
+            </div>
+
+            <!-- Code Editor Output -->
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs leading-relaxed space-y-1.5 min-h-[130px]">
+              <div id="sim-code-line-1" class="text-purple-300 font-bold"># Step 1: Initialize list<br>favorite_things = []</div>
+              <div id="sim-code-line-2" class="text-slate-600"># Step 2: Click step 2 to write input prompt</div>
+              <div id="sim-code-line-3" class="text-slate-600"># Step 3: Click step 3 to append</div>
+              <div id="sim-code-line-4" class="text-slate-600"># Step 4: print(favorite_things)</div>
+            </div>
+          </div>
+
+          <!-- Interactive Terminal Prompt and List Stage -->
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex items-center gap-2 text-xs text-alphagen-cyan">
+              <i class="fa-solid fa-terminal"></i>
+              <span>Terminal Input &amp; List Visualizer:</span>
+            </div>
+            <div id="sim-terminal-prompt" class="flex gap-2 items-center">
+              <span class="text-xs text-amber-300">Enter item:</span>
+              <input type="text" id="sim-user-input" value="Guitar " class="bg-slate-900 text-white border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none focus:border-alphagen-yellow flex-1">
+              <button onclick="commitSimInput()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold">Send</button>
+            </div>
+
+            <div class="game-grid-bg p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span class="text-xs text-slate-400">List contents:</span>
+              <span id="sim-visual-list" class="font-bold text-emerald-400 text-sm">[]</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-alphagen-purpleGhost border-2 border-dashed border-alphagen-purple p-3 rounded-xl text-center text-xs font-bold text-alphagen-purple">
+        Formula: <code class="font-mono bg-white px-2 py-0.5 rounded text-alphagen-purple">empty_list = []</code> ➔ <code class="font-mono bg-white px-2 py-0.5 rounded text-alphagen-purple">item = input(...)</code> ➔ <code class="font-mono bg-white px-2 py-0.5 rounded text-alphagen-purple">empty_list.append(item)</code>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 5: CODING CHALLENGE (DYNAMIC INPUTS) ================= -->
+    <div id="slide-5" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Lab Practice</span>
+        
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Coding Challenge</h2>
+       
+      </div>
+
+      <div class="space-y-4 my-auto">
+        <!-- Challenge 1 -->
+        <div class="checkbox-card" id="input-task-1" onclick="toggleTaskCheckbox('input-task-1')">
+          <div class="checkbox-box"><i class="fa-solid fa-check"></i></div>
+          <div class="flex-1">
+            <h3 class="font-extrabold text-lg text-alphagen-nearBlack">1. Best Friend's Name Input</h3>
+            <p class="text-sm text-alphagen-darkGrey mt-0.5">
+              Create an empty list <code class="font-mono text-alphagen-purple font-bold">friends = []</code>. Take input of your friend's name and use <code class="font-mono text-alphagen-purple font-bold">.append()</code> to add it, then print the list.
+            </p>
+          </div>
+         
+        </div>
+
+        <!-- Challenge 2 -->
+        <div class="checkbox-card" id="input-task-2" onclick="toggleTaskCheckbox('input-task-2')">
+          <div class="checkbox-box"><i class="fa-solid fa-check"></i></div>
+          <div class="flex-1">
+            <h3 class="font-extrabold text-lg text-alphagen-nearBlack">2. Favorite Movie Input</h3>
+            <p class="text-sm text-alphagen-darkGrey mt-0.5">
+              Create an empty list <code class="font-mono text-alphagen-purple font-bold">movies = []</code>. Ask the user for their favorite movie name, add it into the list, and print the list.
+            </p>
+          </div>
+         
+        </div>
+
+        <!-- Challenge 3 -->
+        <div class="checkbox-card" id="input-task-3" onclick="toggleTaskCheckbox('input-task-3')">
+          <div class="checkbox-box"><i class="fa-solid fa-check"></i></div>
+          <div class="flex-1">
+            <h3 class="font-extrabold text-lg text-alphagen-nearBlack">3. Favorite Number Input</h3>
+            <p class="text-sm text-alphagen-darkGrey mt-0.5">
+              Create an empty list <code class="font-mono text-alphagen-purple font-bold">numbers = []</code>. Take an integer input using <code class="font-mono text-alphagen-purple font-bold">int(input(...))</code> and append it to your list!
+            </p>
+          </div>
+          
+        </div>
+      </div>
+
+      <div id="input-tasks-progress" class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-4 rounded-2xl text-center text-sm font-extrabold text-alphagen-purple">
+        Progress: <span id="input-tasks-count" class="text-alphagen-yellowDark">0 / 3 Tasks Completed</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 6: THE BIG QUESTION: REPEATING ACTIONS ================= -->
+    <div id="slide-6" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Connecting Concepts</span>
+          <span class="text-xs font-bold text-alphagen-midGrey">Concept Inquiry</span>
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">What if we want to add more than one element?</h2>
+        <p class="text-base text-alphagen-darkGrey">Adding one item by writing 3 lines of code is great. But what if we need 10, 50, or 100 items?</p>
+      </div>
+
+      <div class="my-auto max-w-3xl mx-auto w-full bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-8 rounded-3xl shadow-sm text-center">
+        <div class="w-16 h-16 rounded-2xl bg-alphagen-purple text-white flex items-center justify-center text-3xl mx-auto mb-4 shadow-md">
+          <i class="fa-solid fa-question"></i>
+        </div>
+
+        <h3 class="font-extrabold text-2xl text-alphagen-nearBlack mb-3">
+          If I want to do a task again and again, which programming concept am I going to use?
+        </h3>
+        <p class="text-sm font-semibold text-alphagen-darkGrey mb-6">
+          Type your answer below (Hint: It starts with <span class="font-mono text-alphagen-purple font-bold">L</span> or <span class="font-mono text-alphagen-purple font-bold">F</span>):
+        </p>
+
+        <div class="flex max-w-md mx-auto gap-3">
+          <input type="text" id="loop-concept-input" placeholder="Type programming concept..." class="flex-1 p-4 rounded-2xl border-2 border-alphagen-purplePale font-bold text-lg text-center outline-none focus:border-alphagen-purple bg-white">
+          <button onclick="checkLoopConcept()" class="btn-interactive bg-alphagen-purple hover:bg-alphagen-purpleDark text-white px-7 py-4 rounded-2xl font-extrabold text-base shadow-md">
+            Verify
+          </button>
+        </div>
+
+        <div id="loop-concept-feedback" class="mt-6 hidden p-4 rounded-2xl text-base font-extrabold text-center transition-all"></div>
+      </div>
+
+      
+    </div>
+
+    <!-- ================= SLIDE 7: ENTER ELEMENTS VIA FOR LOOP ================= -->
+    <div id="slide-7" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Syntax &amp; Simulation</span>
+        
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Let's Enter 3 Elements in a List Using a Loop</h2>
+       
+      </div>
+
+      <div class="grid grid-cols-12 gap-8 items-stretch my-auto">
+        <!-- Steps Selector (5 cols) -->
+        <div class="col-span-5 flex flex-col justify-between gap-2.5">
+          <div onclick="addLoopStep(1)" id="lstep-1" class="btn-interactive bg-white border-2 border-alphagen-purple p-3.5 rounded-2xl cursor-pointer">
+            <span class="font-extrabold text-xs text-alphagen-purple block">STEP 1</span>
+            <span class="font-bold text-sm text-alphagen-nearBlack">1. Create an empty list: <code class="font-mono text-purple-700">my_list = []</code></span>
+          </div>
+
+          <div onclick="addLoopStep(2)" id="lstep-2" class="btn-interactive bg-white border-2 border-alphagen-purplePale p-3.5 rounded-2xl cursor-pointer">
+            <span class="font-extrabold text-xs text-alphagen-purple block">STEP 2</span>
+            <span class="font-bold text-sm text-alphagen-nearBlack">2. Create a for loop: <code class="font-mono text-purple-700">for i in range(3):</code></span>
+          </div>
+
+          <div onclick="addLoopStep(3)" id="lstep-3" class="btn-interactive bg-white border-2 border-alphagen-purplePale p-3.5 rounded-2xl cursor-pointer">
+            <span class="font-extrabold text-xs text-alphagen-purple block">STEP 3</span>
+            <span class="font-bold text-sm text-alphagen-nearBlack">3. Take input &amp; append inside loop: <code class="font-mono text-purple-700">my_list.append(...)</code></span>
+          </div>
+
+          <div onclick="addLoopStep(4)" id="lstep-4" class="btn-interactive bg-white border-2 border-alphagen-purplePale p-3.5 rounded-2xl cursor-pointer">
+            <span class="font-extrabold text-xs text-alphagen-purple block">STEP 4</span>
+            <span class="font-bold text-sm text-alphagen-nearBlack">4. Print list outside the loop: <code class="font-mono text-purple-700">print(my_list)</code></span>
+          </div>
+
+          <button onclick="startLoopRunner()" id="run-loop-btn" class="btn-interactive bg-alphagen-yellow hover:bg-alphagen-yellowDark text-alphagen-nearBlack font-extrabold py-3 rounded-xl text-sm shadow-md flex items-center justify-center gap-2">
+            <i class="fa-solid fa-play"></i>
+            <span>Run Loop Program</span>
+          </button>
+        </div>
+
+        <!-- Simulator Code + Live Execution (7 cols) -->
+        <div class="col-span-7 bg-slate-900 border-2 border-slate-800 rounded-3xl p-5 text-white flex flex-col justify-between shadow-lg font-mono text-xs">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
+              <span class="text-alphagen-yellow font-bold">PYTHON CODE EDITOR</span>
+              <span id="loop-state-tag" class="text-cyan-300">Ready to Assemble</span>
+            </div>
+
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+              <div id="lcode-line-1" class="text-purple-300 font-bold">my_list = []</div>
+              <div id="lcode-line-2" class="text-slate-600">for i in range(3):</div>
+              <div id="lcode-line-3" class="text-slate-600">&nbsp;&nbsp;&nbsp;&nbsp;val = input("Enter element: ")</div>
+              <div id="lcode-line-4" class="text-slate-600">&nbsp;&nbsp;&nbsp;&nbsp;my_list.append(val)</div>
+              <div id="lcode-line-5" class="text-slate-600">print("Final List:", my_list)</div>
+            </div>
+          </div>
+
+          <!-- Live Loop Runtime Stage -->
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 mt-2">
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span>Iteration Counter: <strong id="loop-iteration-badge" class="text-amber-400 font-bold">Idle</strong></span>
+              <span id="loop-prompt-hint" class="text-cyan-300">Press 'Run Loop Program'</span>
+            </div>
+
+            <div id="loop-input-row" class="hidden flex gap-2">
+              <input type="text" id="loop-turn-input" placeholder="Type item here..." class="bg-slate-900 text-white border border-slate-700 rounded-lg px-2.5 py-1 text-xs outline-none focus:border-alphagen-yellow flex-1">
+              <button onclick="commitLoopTurn()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold">Add to List</button>
+            </div>
+
+            <div class="game-grid-bg p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+              <span class="text-slate-400 text-xs">my_list =</span>
+              <span id="loop-live-array" class="text-emerald-400 font-bold text-sm">[]</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 border border-emerald-300 p-2.5 rounded-xl text-center text-xs font-bold text-emerald-950">
+        ✨ Notice indentation! The <code class="font-mono">input()</code> and <code class="font-mono">append()</code> lines are indented inside the loop, while <code class="font-mono">print()</code> is outside!
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 8: CODING CHALLENGES: FRIENDS & GROCERY (NO CODE SPOILERS) ================= -->
+    <div id="slide-8" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Lab Practice</span>
+         
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Coding Challenge II</h2>
+      
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto items-stretch">
+        <!-- Challenge 1 Card -->
+        <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-8 rounded-3xl flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center gap-3.5 mb-4">
+              <input type="checkbox" onchange="checkProgTask(this)" class="w-7 h-7 accent-alphagen-purple rounded-xl cursor-pointer">
+              <h3 class="font-extrabold text-2xl text-alphagen-nearBlack">1. Five Best Friends List</h3>
+            </div>
+            <p class="text-base text-alphagen-darkGrey font-semibold leading-relaxed pl-10">
+              Create an empty list. Run a loop with <code class="font-mono font-bold text-alphagen-purple">range(5)</code> to take input of 5 friends' names and append each into the list. Print the list at the end.
+            </p>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-alphagen-purplePale mt-6 text-sm font-bold text-alphagen-purple flex items-center gap-2">
+            <i class="fa-solid fa-laptop-code text-alphagen-purple"></i>
+            <span>Task 1: Complete in your IDE and tick the checkbox above!</span>
+          </div>
+        </div>
+
+        <!-- Challenge 2 Card -->
+        <div class="bg-alphagen-yellowPale border-2 border-yellow-300 p-8 rounded-3xl flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center gap-3.5 mb-4">
+              <input type="checkbox" onchange="checkProgTask(this)" class="w-7 h-7 accent-yellow-600 rounded-xl cursor-pointer">
+              <h3 class="font-extrabold text-2xl text-alphagen-nearBlack">2. User-Determined Grocery List</h3>
+            </div>
+            <p class="text-base text-alphagen-darkGrey font-semibold leading-relaxed pl-10">
+              Ask user: <code class="font-mono font-bold text-yellow-900">How many grocery items do you want to buy?</code> Use that variable in the loop to take input of that many items and then print the completed list!
+            </p>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-yellow-300 mt-6 text-sm font-bold text-amber-900 flex items-center gap-2">
+            <i class="fa-solid fa-cart-shopping text-yellow-700"></i>
+            <span>Task 2: Complete in your IDE and tick the checkbox above!</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="prog-tasks-banner" class="bg-alphagen-purpleGhost border-2 border-dashed border-alphagen-purple p-3.5 rounded-xl text-center text-sm font-bold text-alphagen-purple">
+        Complete both tasks in your Python environment and check off both cards!
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 9: CODING KNOWLEDGE CHECK (SCRAMBLE STEPS) ================= -->
+    <div id="slide-9" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Knowledge Check</span>
+         
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Arrange in Order the Steps </h2>
+        <p class="text-base text-alphagen-darkGrey">Find and click the 5 correct steps in the proper order to add elements into a list using input and a loop:</p>
+      </div>
+
+      <div class="grid grid-cols-12 gap-6 my-auto items-stretch">
+        <!-- Scrambled Options Pool without numbers / marks (6 cols) -->
+        <div class="col-span-6 bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-4 rounded-3xl flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-extrabold text-alphagen-purple uppercase tracking-wider mb-2 block">AVAILABLE STEPS POOL (CLICK TO ADD):</span>
+            <!-- Mixed scrambled order with distractors, no 1-5 prefixes -->
+            <div id="scramble-pool" class="grid grid-cols-1 gap-2">
+              <button onclick="pickScrambleStep(this, 'Take input from the user inside loop')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Take input from the user inside loop</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Create an empty list')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Create an empty list</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Delete the list before input')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Delete the list before input</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Print the list outside the loop')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Print the list outside the loop</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Create a loop for repetitions')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Create a loop for number of times to run</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Fill list with 10 random numbers')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Fill list with 10 random numbers</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Append element into the list')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Append the input element into the list</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+              <button onclick="pickScrambleStep(this, 'Print the list before taking input')" class="quiz-chip w-full text-xs p-2.5">
+                <span>Print the list before taking input</span>
+                <i class="fa-solid fa-plus text-alphagen-purple"></i>
+              </button>
+            </div>
+          </div>
+
+          <button onclick="resetScramble()" class="btn-interactive bg-alphagen-coralPale text-alphagen-coralDark border border-alphagen-coral/30 py-2 rounded-xl text-xs font-bold mt-2">
+            Reset Order
+          </button>
+        </div>
+
+        <!-- Student's Ordered Steps Sequence (6 cols) -->
+        <div class="col-span-6 bg-slate-900 border-2 border-slate-800 p-5 rounded-3xl text-white flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+              <span class="text-xs font-mono text-alphagen-yellow font-bold uppercase">YOUR ORDERED SEQUENCE (1 TO 5)</span>
+              <span id="scramble-slot-count" class="text-xs text-slate-400">0 / 5 picked</span>
+            </div>
+
+            <div id="ordered-steps-list" class="space-y-2 min-h-[220px]">
+              <div class="p-3 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 text-xs italic text-center">
+                Click steps on the left to build your sequence!
+              </div>
+            </div>
+          </div>
+
+          <button onclick="validateScrambleOrder()" class="btn-interactive bg-alphagen-yellow hover:bg-alphagen-yellowDark text-alphagen-nearBlack font-extrabold py-3 rounded-xl text-sm shadow-md mt-2 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-check"></i>
+            <span>Validate Sequence</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="scramble-feedback" class="bg-alphagen-purpleGhost border-2 border-dashed border-alphagen-purple p-2.5 rounded-xl text-center text-xs font-bold text-alphagen-purple">
+        Find the 5 essential steps in correct execution order!
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 10: OPERATIONS: ADDING NUMBERS IN A LIST ================= -->
+    <div id="slide-10" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Data Operations</span>
+    
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Let's Enter Numbers and Add Them Up!</h2>
+       
+      </div>
+
+      <div class="grid grid-cols-12 gap-8 my-auto items-stretch">
+        <!-- Scenario Presentation (6 cols) -->
+        <div class="col-span-6 bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-6 rounded-3xl flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-extrabold text-alphagen-purple uppercase tracking-wider mb-2 block">THE SCENARIO</span>
+            <p class="text-sm font-semibold text-alphagen-darkGrey mb-3">
+              A user has entered numbers into a list:
+            </p>
+            <div class="font-mono bg-slate-900 text-cyan-300 p-3.5 rounded-2xl text-lg font-bold mb-4 border border-slate-800">
+              numbers = [2, 8, 16, 24]
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-alphagen-purplePale space-y-1.5">
+              <span class="text-xs font-extrabold text-alphagen-purple block uppercase">Target Goal:</span>
+              <p class="text-base font-bold text-alphagen-nearBlack">
+                Add up all numbers together:
+              </p>
+              <div class="font-mono text-emerald-600 font-extrabold text-xl">
+                2 + 8 + 16 + 24 = 50
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-alphagen-yellowPale border border-alphagen-yellowDark/40 p-3 rounded-xl text-xs font-bold text-alphagen-nearBlack">
+            💡 Accumulation pattern: Start at 0, then visit each number in the list and add it to the running sum!
+          </div>
+        </div>
+
+        <!-- Student Decision Question (6 cols) -->
+        <div class="col-span-6 bg-slate-900 border-2 border-slate-800 p-6 rounded-3xl text-white flex flex-col justify-between shadow-lg">
+          <div>
+            <span class="text-xs font-mono text-alphagen-yellow font-extrabold uppercase mb-2 block">CRITICAL DECISION CHECK</span>
+            <h3 class="font-extrabold text-lg text-white mb-4 leading-snug">
+              If I am going to keep adding these numbers and I do not know the number of elements in advance, where am I supposed to do the addition?
+            </h3>
+
+            <div class="space-y-3">
+              <button onclick="checkLoopPlacement(this, false)" class="quiz-chip w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-700">
+                <span>Option A: Outside the loop</span>
+                <i class="fa-solid fa-circle-xmark text-slate-500"></i>
+              </button>
+
+              <button onclick="checkLoopPlacement(this, true)" class="quiz-chip w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-700">
+                <span>Option B: Inside the loop</span>
+                <i class="fa-solid fa-circle-check text-slate-500"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="placement-feedback" class="mt-4 p-3.5 rounded-xl text-xs font-bold text-center bg-slate-950 text-slate-400 border border-slate-800">
+            Select whether addition should happen inside or outside the loop!
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+
+    <!-- ================= SLIDE 11: STEP-BY-STEP LOOP TRACKER (1.0S PACED & STACKED LOGS) ================= -->
+    <div id="slide-11" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Code Execution</span>
+        
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">How the Loop Tracks Index</h2>
+        
+      </div>
+
+      <div class="grid grid-cols-12 gap-8 my-auto items-stretch">
+        <!-- Code Formula & Steps (5 cols) -->
+        <div class="col-span-5 bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-4 rounded-3xl flex flex-col justify-between font-mono text-xs">
+          <div>
+            <span class="text-xs font-extrabold text-alphagen-purple uppercase tracking-wider mb-2 block font-sans">CODE FORMULA</span>
+            <div class="bg-white p-3 rounded-2xl border border-alphagen-purplePale space-y-1 leading-relaxed text-slate-800 text-[11px]">
+              <div><span class="text-purple-600 font-bold"># Step 1: Given List</span><br>numbers = [<span class="text-cyan-600 font-bold">2, 8, 16, 24</span>]</div>
+              <div><span class="text-purple-600 font-bold"># Step 2: Initialize sum</span><br>total_sum = <span class="text-amber-600 font-bold">0</span></div>
+              <div><span class="text-purple-600 font-bold"># Step 3: Run loop</span><br>for i in range(len(numbers)):</div>
+              <div class="bg-purple-50 p-1.5 rounded-lg border-l-4 border-alphagen-purple text-purple-900 font-bold">
+                &nbsp;&nbsp;total_sum = total_sum + numbers[i]
+              </div>
+              <div>print("Total Sum =", total_sum)</div>
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded-xl border border-alphagen-purplePale text-[11px] font-sans text-alphagen-darkGrey font-semibold mt-2">
+            💡 <strong>Why `numbers[i]`?</strong><br>
+            When <code class="font-mono text-purple-700">i = 0</code>, <code class="font-mono text-purple-700">numbers[0] = 2</code>.<br>
+            When <code class="font-mono text-purple-700">i = 1</code>, <code class="font-mono text-purple-700">numbers[1] = 8</code>, and so on!
+          </div>
+
+          <button onclick="runStepByStepBurst()" id="burst-btn" class="btn-interactive bg-alphagen-purple hover:bg-alphagen-purpleDark text-white font-extrabold py-3 rounded-xl text-xs font-sans shadow-md flex items-center justify-center gap-2 mt-2">
+            <i class="fa-solid fa-play"></i>
+            <span>Play Simulation</span>
+          </button>
+        </div>
+
+        <!-- Live Visual Tracking Stage with step-by-step stacked rows (7 cols) -->
+        <div class="col-span-7 bg-slate-900 border-2 border-slate-800 rounded-3xl p-5 text-white flex flex-col justify-between shadow-lg font-mono">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2 text-xs">
+              <span class="text-alphagen-yellow font-bold uppercase">LIVE TRACKING SIMULATOR</span>
+              <span id="burst-status-tag" class="text-slate-400">Press 'Play Simulation'</span>
+            </div>
+
+            <!-- Visual Array with Index Tags -->
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <div id="cell-0" class="bg-slate-950 p-2.5 rounded-xl border-2 border-slate-800 text-center transition-all">
+                <span class="text-[10px] text-slate-500 block">Index [0]</span>
+                <span class="text-lg font-bold text-white">2</span>
+              </div>
+              <div id="cell-1" class="bg-slate-950 p-2.5 rounded-xl border-2 border-slate-800 text-center transition-all">
+                <span class="text-[10px] text-slate-500 block">Index [1]</span>
+                <span class="text-lg font-bold text-white">8</span>
+              </div>
+              <div id="cell-2" class="bg-slate-950 p-2.5 rounded-xl border-2 border-slate-800 text-center transition-all">
+                <span class="text-[10px] text-slate-500 block">Index [2]</span>
+                <span class="text-lg font-bold text-white">16</span>
+              </div>
+              <div id="cell-3" class="bg-slate-950 p-2.5 rounded-xl border-2 border-slate-800 text-center transition-all">
+                <span class="text-[10px] text-slate-500 block">Index [3]</span>
+                <span class="text-lg font-bold text-white">24</span>
+              </div>
+            </div>
+
+            <!-- Step-by-step stacked logs shown one below the other -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs space-y-1.5 min-h-[140px]" id="burst-logs-container">
+              <div class="text-slate-500 text-[11px] italic">Steps will appear one below the other during simulation...</div>
+            </div>
+          </div>
+
+          <!-- Total Accumulator Display -->
+          <div class="game-grid-bg p-3 rounded-xl border border-slate-800 flex justify-between items-center mt-2">
+            <div>
+              <span class="text-[11px] text-slate-400 block">ACCUMULATED VALUE:</span>
+              <span class="text-xs text-cyan-300">print(total_sum)</span>
+            </div>
+            <div id="burst-final-sum" class="text-3xl font-extrabold text-emerald-400">
+              0
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-2 rounded-xl text-center text-xs font-bold text-alphagen-purple">
+        The loop extracts one number per cycle, adds it into <code class="font-mono text-purple-700">total_sum</code>, and prints the grand total after finishing!
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 12: ADVANCED LAB CHALLENGES & CELEBRATION ================= -->
+    <div id="slide-12" class="slide-panel bg-white justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-alphagen-purple bg-alphagen-purpleGhost px-3.5 py-1.5 rounded-md border border-alphagen-purplePale">Master Challenges</span>
+       
+        </div>
+        <h2 class="text-3xl font-extrabold text-alphagen-nearBlack">Advanced Coding Challenge</h2>
+       
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 my-auto items-stretch">
+        <!-- Challenge 1: Even & Odd Counter -->
+        <div class="bg-alphagen-purpleGhost border-2 border-alphagen-purplePale p-6 rounded-3xl flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <input type="checkbox" onchange="checkMasterLabTask()" class="w-6 h-6 accent-alphagen-purple rounded-xl cursor-pointer">
+              <h3 class="font-extrabold text-lg text-alphagen-nearBlack">1. Count Even &amp; Odd Numbers</h3>
+            </div>
+            <p class="text-xs text-alphagen-darkGrey font-semibold leading-relaxed mb-3 pl-9">
+              Ask user how many elements, take inputs into a list. Then run a loop to inspect each number using <code class="font-mono text-purple-700 font-bold">if num % 2 == 0:</code> to count evens and odds!
+            </p>
+
+            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 text-white font-mono text-xs space-y-1">
+              <span class="text-alphagen-yellow font-bold text-[10px] block">EXPECTED SAMPLE OUTPUT:</span>
+              <div class="text-cyan-300">Input List: [12, 7, 9, 20, 15, 8]</div>
+              <div class="text-emerald-400">Even count = 3 | Odd count = 3</div>
+            </div>
+          </div>
+
+          
+        </div>
+
+        <!-- Challenge 2: List Product Multiplier -->
+        <div class="bg-alphagen-yellowPale border-2 border-yellow-300 p-6 rounded-3xl flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <input type="checkbox" onchange="checkMasterLabTask()" class="w-6 h-6 accent-yellow-600 rounded-xl cursor-pointer">
+              <h3 class="font-extrabold text-lg text-alphagen-nearBlack">2. Multiply All 5 Elements</h3>
+            </div>
+            <p class="text-xs text-alphagen-darkGrey font-semibold leading-relaxed mb-3 pl-9">
+              Take 5 elements as input into a list. Initialize <code class="font-mono text-yellow-900 font-bold">product = 1</code>, multiply every element in a loop, and print the resulting total product!
+            </p>
+
+            <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 text-white font-mono text-xs space-y-1">
+              <span class="text-alphagen-yellow font-bold text-[10px] block">EXPECTED SAMPLE OUTPUT:</span>
+              <div class="text-cyan-300">Input List: [2, 3, 4, 5, 2]</div>
+              <div class="text-amber-400">Product = 2 * 3 * 4 * 5 * 2 = 240</div>
+            </div>
+          </div>
+
+          
+        </div>
+      </div>
+
+      <!-- In-Slide Completion Button -->
+      <div class="pt-2">
+        <button onclick="triggerGrandConfetti()" class="w-full bg-alphagen-yellow hover:bg-alphagen-yellowDark text-alphagen-nearBlack font-extrabold text-lg py-4 rounded-2xl shadow-xl shadow-alphagen-yellow/30 btn-interactive flex items-center justify-center gap-3">
+          <i class="fa-solid fa-trophy text-alphagen-purple"></i>
+          <span>Celebrate Completion</span>
+          <span>🎉</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation Control Bar -->
+  <div class="nav-bar">
+    <button id="prev-btn" class="nav-btn btn-interactive" onclick="prevSlide()" disabled>
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Previous</span>
+    </button>
+
+    <span class="text-sm font-semibold text-white/90">
+      Use Arrow Keys (← / →) or buttons to navigate slides
+    </span>
+
+    <button id="next-btn" class="nav-btn btn-interactive" onclick="handleNextOrFinish()">
+      <span id="next-btn-text">Next</span>
+      <i id="next-btn-icon" class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<script>
+let currentSlide = 1;
+const totalSlides = 12; // 12 slides total (Slide 12 houses the completion)
+let soundEnabled = true;
+
+/* Web Audio Synthesizer */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function toggleAudio() {
+  soundEnabled = !soundEnabled;
+  const stageBtn = document.getElementById('audio-btn');
+  const topBtn = document.getElementById('top-audio-btn');
+  const iconHtml = soundEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
+
+  if (stageBtn) stageBtn.innerHTML = iconHtml;
+  if (topBtn) topBtn.innerHTML = soundEnabled ? '<i class="fa-solid fa-volume-high text-base"></i>' : '<i class="fa-solid fa-volume-xmark text-base"></i>';
+}
+
+function playSound(type) {
+  if (!soundEnabled) return;
+  try {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+
+    if (type === 'correct') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(); osc.stop(now + 0.3);
+    } else if (type === 'pop') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(360, now);
+      osc.frequency.exponentialRampToValueAtTime(720, now + 0.08);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc.start(); osc.stop(now + 0.08);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.linearRampToValueAtTime(110, now + 0.2);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc.start(); osc.stop(now + 0.25);
+    }
+  } catch (e) {}
+}
+
+/* Confetti Animations */
+function triggerConfetti() {
+  playSound('correct');
+  if (typeof confetti === 'function') {
+    confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
+  }
+}
+
+function triggerGrandConfetti() {
+  playSound('correct');
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 130,
+      spread: 90,
+      origin: { y: 0.5 },
+      colors: ['#5E48C4', '#FFD071', '#59E4FB', '#ED5661', '#ffffff']
+    });
+    setTimeout(() => {
+      confetti({ particleCount: 80, angle: 60, spread: 60, origin: { x: 0 } });
+      confetti({ particleCount: 80, angle: 120, spread: 60, origin: { x: 1 } });
+    }, 250);
+  }
+}
+
+/* Responsive stage scaler */
+function fitStageToScreen() {
+  const stage = document.querySelector('.slide-stage');
+  const nav = document.querySelector('.nav-bar');
+  if (!stage) return;
+  const availableWidth = window.innerWidth - 32;
+  if (availableWidth < 1280) {
+    const scale = availableWidth / 1280;
+    stage.style.transform = `scale(${scale})`;
+    stage.style.marginBottom = `-${720 * (1 - scale)}px`;
+    if (nav) nav.style.transform = `scale(${scale})`;
+  } else {
+    stage.style.transform = 'none';
+    stage.style.marginBottom = '0px';
+    if (nav) nav.style.transform = 'none';
+  }
+}
+
+/* Slide Navigation Functions */
+function initHeaderDots() {
+  const container = document.getElementById('header-dots-container');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = `dot-indicator ${i === 1 ? 'active' : ''}`;
+    dot.onclick = () => goToSlide(i);
+    container.appendChild(dot);
+  }
+}
+
+function updateSlideDisplay() {
+  document.querySelectorAll('.slide-panel').forEach((panel, idx) => {
+    panel.classList.remove('active');
+    if (idx + 1 === currentSlide) {
+      panel.classList.add('active');
+    }
+  });
+
+  const dots = document.querySelectorAll('.dot-indicator');
+  dots.forEach((dot, idx) => {
+    if (idx + 1 === currentSlide) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+
+  const pill = document.getElementById('slide-counter-pill');
+  const dropdown = document.getElementById('slide-dropdown');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const nextBtnText = document.getElementById('next-btn-text');
+  const nextBtnIcon = document.getElementById('next-btn-icon');
+
+  if (pill) pill.innerText = `Slide ${currentSlide} / ${totalSlides}`;
+  if (dropdown) dropdown.value = currentSlide;
+  if (prevBtn) prevBtn.disabled = currentSlide === 1;
+
+  if (nextBtn && nextBtnText && nextBtnIcon) {
+    if (currentSlide === totalSlides) {
+      nextBtnText.innerText = 'Finish';
+      nextBtnIcon.className = 'fa-solid fa-flag-checkered';
+      nextBtn.classList.add('finish-btn');
+      nextBtn.disabled = false;
+    } else {
+      nextBtnText.innerText = 'Next';
+      nextBtnIcon.className = 'fa-solid fa-arrow-right';
+      nextBtn.classList.remove('finish-btn');
+      nextBtn.disabled = false;
+    }
+  }
+}
+
+function handleNextOrFinish() {
+  if (currentSlide === totalSlides) {
+    triggerGrandConfetti();
+  } else {
+    nextSlide();
+  }
+}
+
+function goToSlide(n) {
+  if (n >= 1 && n <= totalSlides) {
+    currentSlide = n;
+    playSound('pop');
+    updateSlideDisplay();
+  }
+}
+
+function nextSlide() {
+  if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  if (currentSlide > 1) goToSlide(currentSlide - 1);
+}
+
+/* ================= Slide 2: Warm-up Quiz Logic ================= */
+function checkWarmup(btn, isCorrect) {
+  const parent = btn.closest('.grid');
+  parent.querySelectorAll('.quiz-chip').forEach(b => b.classList.remove('selected-correct', 'selected-wrong'));
+
+  const feedback = document.getElementById('warmup-feedback');
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+    playSound('correct');
+    if (feedback) feedback.innerText = '✅ Awesome job! That is completely correct!';
+  } else {
+    btn.classList.add('selected-wrong');
+    playSound('wrong');
+    if (feedback) feedback.innerText = '❌ Not quite. Recall zero-based indexing and the append() method!';
+  }
+}
+
+/* ================= Slide 3: Feelings Notepad Logic ================= */
+let feelingsList = [];
+
+function quickFeeling(text) {
+  document.getElementById('feeling-input').value = text;
+  submitFeeling();
+}
+
+function submitFeeling() {
+  const inputEl = document.getElementById('feeling-input');
+  const val = inputEl.value.trim();
+  if (!val) {
+    playSound('wrong');
+    return;
+  }
+
+  feelingsList.push(val);
+  inputEl.value = '';
+  playSound('correct');
+  renderFeelingsSheet();
+
+  if (feelingsList.length >= 2) {
+    triggerConfetti();
+  }
+}
+
+function clearFeelings() {
+  playSound('pop');
+  feelingsList = [];
+  renderFeelingsSheet();
+}
+
+function renderFeelingsSheet() {
+  const paper = document.getElementById('feelings-paper');
+  const countBadge = document.getElementById('feeling-count');
+  const codeRepr = document.getElementById('feelings-code-repr');
+
+  if (countBadge) countBadge.innerText = `${feelingsList.length} entries`;
+
+  if (feelingsList.length === 0) {
+    paper.innerHTML = '<span class="text-slate-500 text-sm font-mono italic">No entries yet! Submit an answer on the left to add...</span>';
+    if (codeRepr) codeRepr.innerText = 'feelings = []';
+    return;
+  }
+
+  paper.innerHTML = '';
+  feelingsList.forEach((item, idx) => {
+    const chip = document.createElement('span');
+    chip.className = 'bg-alphagen-purple text-white font-mono font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 shadow-sm';
+    chip.innerHTML = `[${idx}] "${item}" <button onclick="removeFeeling(${idx})" class="text-alphagen-yellow hover:text-white font-bold text-sm">×</button>`;
+    paper.appendChild(chip);
+  });
+
+  if (codeRepr) {
+    codeRepr.innerText = `feelings = [${feelingsList.map(f => `"${f}"`).join(', ')}]`;
+  }
+}
+
+function removeFeeling(idx) {
+  playSound('pop');
+  feelingsList.splice(idx, 1);
+  renderFeelingsSheet();
+}
+
+/* ================= Slide 4: 3 Steps to Add One Element ================= */
+let activeInputStepNum = 1;
+let simulatedThings = [];
+
+function activateInputStep(stepNum) {
+  playSound('pop');
+  activeInputStepNum = stepNum;
+
+  [1, 2, 3].forEach(n => {
+    const btn = document.getElementById(`step-btn-${n}`);
+    const badge = btn.querySelector('span');
+    if (n <= stepNum) {
+      btn.className = 'btn-interactive bg-white border-2 border-alphagen-purple p-4 rounded-2xl cursor-pointer shadow-sm';
+      badge.className = 'w-8 h-8 rounded-xl bg-alphagen-purple text-white flex items-center justify-center font-extrabold text-sm';
+    } else {
+      btn.className = 'btn-interactive bg-white border-2 border-alphagen-purplePale p-4 rounded-2xl cursor-pointer shadow-sm';
+      badge.className = 'w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-extrabold text-sm';
+    }
+  });
+
+  const stepBadge = document.getElementById('step-badge');
+  if (stepBadge) stepBadge.innerText = `Step ${stepNum} Active`;
+
+  const l1 = document.getElementById('sim-code-line-1');
+  const l2 = document.getElementById('sim-code-line-2');
+  const l3 = document.getElementById('sim-code-line-3');
+  const l4 = document.getElementById('sim-code-line-4');
+
+  if (stepNum >= 1) {
+    l1.className = 'text-purple-300 font-bold';
+    l1.innerHTML = 'favorite_things = []';
+  }
+  if (stepNum >= 2) {
+    l2.className = 'text-amber-300 font-bold';
+    l2.innerHTML = 'val = input("Enter your favorite item: ")';
+  } else {
+    l2.className = 'text-slate-600';
+    l2.innerHTML = '# Step 2: Click step 2 to write input prompt';
+  }
+  if (stepNum >= 3) {
+    l3.className = 'text-cyan-300 font-bold';
+    l3.innerHTML = 'favorite_things.append(val)';
+    l4.className = 'text-emerald-400 font-bold';
+    l4.innerHTML = 'print("Updated List:", favorite_things)';
+  } else {
+    l3.className = 'text-slate-600';
+    l3.innerHTML = '# Step 3: Click step 3 to append';
+    l4.className = 'text-slate-600';
+    l4.innerHTML = '# Step 4: print(favorite_things)';
+  }
+}
+
+function runSingleInputSim() {
+  playSound('pop');
+  activateInputStep(3);
+  const inputEl = document.getElementById('sim-user-input');
+  if (inputEl) inputEl.focus();
+}
+
+function commitSimInput() {
+  const inputEl = document.getElementById('sim-user-input');
+  const val = inputEl.value.trim() || 'Guitar 🎸';
+  simulatedThings.push(val);
+  playSound('correct');
+  triggerConfetti();
+
+  const visualList = document.getElementById('sim-visual-list');
+  if (visualList) visualList.innerText = JSON.stringify(simulatedThings);
+  inputEl.value = '';
+}
+
+/* ================= Slide 5: Checklist Toggle ================= */
+function toggleTaskCheckbox(id) {
+  playSound('pop');
+  const card = document.getElementById(id);
+  card.classList.toggle('checked');
+
+  const total = document.querySelectorAll('#slide-5 .checkbox-card').length;
+  const checked = document.querySelectorAll('#slide-5 .checkbox-card.checked').length;
+  const counter = document.getElementById('input-tasks-count');
+  if (counter) counter.innerText = `${checked} / ${total} Tasks Completed`;
+
+  if (checked === total) {
+    triggerConfetti();
+  }
+}
+
+/* ================= Slide 6: Loop Concept Answer Verification ================= */
+function checkLoopConcept() {
+  const inputEl = document.getElementById('loop-concept-input');
+  const feedback = document.getElementById('loop-concept-feedback');
+  const val = inputEl.value.trim().toLowerCase();
+
+  const accepted = ['loop', 'for', 'for loop', 'loops', 'a loop', 'for loops'];
+
+  if (accepted.includes(val)) {
+    playSound('correct');
+    triggerConfetti();
+    feedback.className = 'mt-6 p-4 rounded-2xl text-base font-extrabold text-center bg-emerald-100 text-emerald-800 border-2 border-emerald-300 block';
+    feedback.innerHTML = '🎉 <strong>YES! Spot on!</strong> We will be using a <strong>for loop</strong> to repeat tasks smoothly!';
+  } else {
+    playSound('wrong');
+    feedback.className = 'mt-6 p-4 rounded-2xl text-base font-extrabold text-center bg-rose-100 text-rose-800 border-2 border-rose-300 block';
+    feedback.innerHTML = '❌ Close! Think of the programming concept that repeats: Type <strong>"loop"</strong> or <strong>"for"</strong>!';
+  }
+}
+
+/* ================= Slide 7: Loop Elements Builder & Simulator ================= */
+let currentLoopStep = 1;
+let loopItems = [];
+let loopIteration = 0;
+const targetIterations = 3;
+
+function addLoopStep(step) {
+  playSound('pop');
+  currentLoopStep = step;
+
+  [1, 2, 3, 4].forEach(s => {
+    const btn = document.getElementById(`lstep-${s}`);
+    if (s <= step) {
+      btn.className = 'btn-interactive bg-white border-2 border-alphagen-purple p-3.5 rounded-2xl cursor-pointer';
+    } else {
+      btn.className = 'btn-interactive bg-white border-2 border-alphagen-purplePale p-3.5 rounded-2xl cursor-pointer';
+    }
+  });
+
+  const l2 = document.getElementById('lcode-line-2');
+  const l3 = document.getElementById('lcode-line-3');
+  const l4 = document.getElementById('lcode-line-4');
+  const l5 = document.getElementById('lcode-line-5');
+
+  if (step >= 2) l2.className = 'text-amber-300 font-bold';
+  if (step >= 3) {
+    l3.className = 'text-cyan-300 font-bold';
+    l4.className = 'text-cyan-300 font-bold';
+  }
+  if (step >= 4) l5.className = 'text-emerald-400 font-bold';
+}
+
+function startLoopRunner() {
+  playSound('pop');
+  addLoopStep(4);
+  loopItems = [];
+  loopIteration = 0;
+  document.getElementById('loop-live-array').innerText = '[]';
+  document.getElementById('loop-input-row').classList.remove('hidden');
+  document.getElementById('loop-iteration-badge').innerText = `Iteration 1 of ${targetIterations} (i = 0)`;
+  document.getElementById('loop-prompt-hint').innerText = 'Enter item for iteration 1:';
+  document.getElementById('loop-state-tag').innerText = 'Loop Running';
+  document.getElementById('loop-turn-input').focus();
+}
+
+function commitLoopTurn() {
+  const inputEl = document.getElementById('loop-turn-input');
+  const val = inputEl.value.trim() || `Item ${loopIteration + 1}`;
+  loopItems.push(val);
+  loopIteration++;
+  playSound('correct');
+
+  document.getElementById('loop-live-array').innerText = JSON.stringify(loopItems);
+  inputEl.value = '';
+
+  if (loopIteration < targetIterations) {
+    document.getElementById('loop-iteration-badge').innerText = `Iteration ${loopIteration + 1} of ${targetIterations} (i = ${loopIteration})`;
+    document.getElementById('loop-prompt-hint').innerText = `Enter item for iteration ${loopIteration + 1}:`;
+    inputEl.focus();
+  } else {
+    document.getElementById('loop-input-row').classList.add('hidden');
+    document.getElementById('loop-iteration-badge').innerText = 'Finished (3 of 3)';
+    document.getElementById('loop-prompt-hint').innerText = 'Loop completed! print() executed outside.';
+    document.getElementById('loop-state-tag').innerText = 'Completed';
+    triggerConfetti();
+  }
+}
+
+/* ================= Slide 8: Programming Tasks ================= */
+function checkProgTask(checkbox) {
+  playSound('correct');
+  const total = document.querySelectorAll('#slide-8 input[type="checkbox"]').length;
+  const checked = document.querySelectorAll('#slide-8 input[type="checkbox"]:checked').length;
+
+  const banner = document.getElementById('prog-tasks-banner');
+  if (checked === total) {
+    triggerConfetti();
+    if (banner) banner.innerText = '🎉 Fantastic! Both coding programs completed!';
+  } else {
+    if (banner) banner.innerText = `${checked} / ${total} programs checked! Keep going!`;
+  }
+}
+
+/* ================= Slide 9: Scramble Steps Logic (Unnumbered pool) ================= */
+let chosenScrambleSteps = [];
+const correctOrder = [
+  'Create an empty list',
+  'Create a loop for repetitions',
+  'Take input from the user inside loop',
+  'Append element into the list',
+  'Print the list outside the loop'
+];
+
+function pickScrambleStep(btn, stepKey) {
+  playSound('pop');
+  if (chosenScrambleSteps.includes(stepKey)) return;
+  if (chosenScrambleSteps.length >= 5) return;
+
+  chosenScrambleSteps.push(stepKey);
+  btn.classList.add('opacity-40', 'pointer-events-none');
+  renderScrambleOrder();
+}
+
+function resetScramble() {
+  playSound('pop');
+  chosenScrambleSteps = [];
+  document.querySelectorAll('#scramble-pool button').forEach(b => b.classList.remove('opacity-40', 'pointer-events-none'));
+  renderScrambleOrder();
+  const fb = document.getElementById('scramble-feedback');
+  if (fb) fb.innerText = 'Pool reset! Click steps in order from start to finish.';
+}
+
+function renderScrambleOrder() {
+  const container = document.getElementById('ordered-steps-list');
+  const countTag = document.getElementById('scramble-slot-count');
+  if (countTag) countTag.innerText = `${chosenScrambleSteps.length} / 5 picked`;
+
+  if (chosenScrambleSteps.length === 0) {
+    container.innerHTML = '<div class="p-3 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 text-xs italic text-center">Click steps on the left to build your sequence!</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  chosenScrambleSteps.forEach((step, idx) => {
+    const row = document.createElement('div');
+    row.className = 'p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-white flex items-center justify-between';
+    row.innerHTML = `<span><strong>${idx + 1}.</strong> ${step}</span><span class="text-amber-400 font-mono">Step ${idx + 1}</span>`;
+    container.appendChild(row);
+  });
+}
+
+function validateScrambleOrder() {
+  const fb = document.getElementById('scramble-feedback');
+  if (chosenScrambleSteps.length < 5) {
+    playSound('wrong');
+    if (fb) fb.innerText = '⚠️ Please select all 5 steps before validating!';
+    return;
+  }
+
+  let isMatch = true;
+  for (let i = 0; i < 5; i++) {
+    if (chosenScrambleSteps[i] !== correctOrder[i]) {
+      isMatch = false;
+      break;
+    }
+  }
+
+  if (isMatch) {
+    playSound('correct');
+    triggerConfetti();
+    if (fb) {
+      fb.className = 'bg-emerald-100 border-2 border-emerald-400 p-2.5 rounded-xl text-center text-xs font-extrabold text-emerald-900';
+      fb.innerText = '🎉 PERFECT ORDER! You nailed the 5-step loop accumulation architecture!';
+    }
+  } else {
+    playSound('wrong');
+    if (fb) {
+      fb.className = 'bg-rose-100 border-2 border-rose-400 p-2.5 rounded-xl text-center text-xs font-extrabold text-rose-900';
+      fb.innerText = '❌ The order is not quite right or includes a distractor. Click "Reset Order" to try again!';
+    }
+  }
+}
+
+/* ================= Slide 10: Loop Placement Decision ================= */
+function checkLoopPlacement(btn, isCorrect) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.quiz-chip').forEach(b => b.classList.remove('selected-correct', 'selected-wrong'));
+
+  const fb = document.getElementById('placement-feedback');
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+    playSound('correct');
+    triggerConfetti();
+    if (fb) {
+      fb.className = 'mt-4 p-3.5 rounded-xl text-xs font-bold text-center bg-emerald-950 text-emerald-300 border border-emerald-600';
+      fb.innerText = '✅ Correct! We must do it INSIDE the loop so every number gets added continuously!';
+    }
+  } else {
+    btn.classList.add('selected-wrong');
+    playSound('wrong');
+    if (fb) {
+      fb.className = 'mt-4 p-3.5 rounded-xl text-xs font-bold text-center bg-rose-950 text-rose-300 border border-rose-600';
+      fb.innerText = '❌ Outside the loop would only run once! To add every element, do it INSIDE the loop!';
+    }
+  }
+}
+
+/* ================= Slide 11: 1.0s Step Burst Simulator & Stacked Logs ================= */
+const burstNumbers = [2, 8, 16, 24];
+let burstRunning = false;
+
+function runStepByStepBurst() {
+  if (burstRunning) return;
+  burstRunning = true;
+
+  playSound('pop');
+  let currentAccumulator = 0;
+  let i = 0;
+
+  // Reset visual cells
+  for (let c = 0; c < 4; c++) {
+    const el = document.getElementById(`cell-${c}`);
+    if (el) el.className = 'bg-slate-950 p-2.5 rounded-xl border-2 border-slate-800 text-center transition-all';
+  }
+
+  const logsContainer = document.getElementById('burst-logs-container');
+  logsContainer.innerHTML = '';
+
+  document.getElementById('burst-status-tag').innerText = 'Running 1.0s pace simulation...';
+  document.getElementById('burst-final-sum').innerText = '0';
+
+  const interval = setInterval(() => {
+    if (i > 0) {
+      const prevEl = document.getElementById(`cell-${i - 1}`);
+      if (prevEl) prevEl.className = 'bg-slate-950 p-2.5 rounded-xl border-2 border-emerald-500 text-center transition-all';
+    }
+
+    if (i < burstNumbers.length) {
+      const activeCell = document.getElementById(`cell-${i}`);
+      if (activeCell) {
+        activeCell.className = 'bg-purple-900/60 p-2.5 rounded-xl border-2 border-alphagen-yellow text-center transition-all scale-105';
+      }
+
+      const added = burstNumbers[i];
+      const prevSum = currentAccumulator;
+      currentAccumulator += added;
+
+      playSound('correct');
+
+      // Append step one below the other
+      const logEntry = document.createElement('div');
+      logEntry.className = 'p-1.5 rounded-lg bg-slate-900 border border-slate-700 flex justify-between items-center text-xs animate-fade-in';
+      logEntry.innerHTML = `
+        <span class="text-cyan-300">Step ${i + 1} (i = ${i}):</span>
+        <span class="text-slate-300">numbers[${i}] = <strong>${added}</strong></span>
+        <span class="text-amber-300 font-bold">${prevSum} + ${added} = <strong class="text-emerald-400 font-extrabold text-sm">${currentAccumulator}</strong></span>
+      `;
+      logsContainer.appendChild(logEntry);
+
+      document.getElementById('burst-final-sum').innerText = currentAccumulator;
+      i++;
+    } else {
+      clearInterval(interval);
+      burstRunning = false;
+      document.getElementById('burst-status-tag').innerText = 'Completed! Final Sum: 50';
+      const lastCell = document.getElementById(`cell-${burstNumbers.length - 1}`);
+      if (lastCell) lastCell.className = 'bg-slate-950 p-2.5 rounded-xl border-2 border-emerald-500 text-center transition-all';
+      triggerConfetti();
+    }
+  }, 1000); // 1.0 second per step for optimal comprehension
+}
+
+/* ================= Slide 12: Master Lab Challenge Checkboxes ================= */
+function checkMasterLabTask() {
+  playSound('correct');
+  const checked = document.querySelectorAll('#slide-12 input[type="checkbox"]:checked').length;
+  if (checked === 2) {
+    triggerConfetti();
+  }
+}
+
+/* Global Keyboard Navigation */
+document.addEventListener('keydown', (e) => {
+  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') handleNextOrFinish();
+  if (e.key === 'ArrowLeft') prevSlide();
+});
+
+window.addEventListener('resize', fitStageToScreen);
+
+window.addEventListener('DOMContentLoaded', () => {
+  currentSlide = 1;
+  initHeaderDots();
+  updateSlideDisplay();
+  fitStageToScreen();
+});
+</script>
+</body>
+</html>
